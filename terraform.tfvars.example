@@ -1,0 +1,47 @@
+# terraform.tfvars.example - Example configuration
+# Copy this file to terraform.tfvars and update with your values
+
+# AWS Configuration
+aws_region   = "us-east-1"
+project_name = "regrada"
+environment  = "production"
+
+# EC2 Configuration
+instance_type = "t3.small"
+key_name      = "your-ssh-key-name" # Replace with your SSH key pair name
+
+# SSH Access (restrict this in production!)
+allowed_ssh_cidr = ["0.0.0.0/0"] # Replace with your IP, e.g., ["1.2.3.4/32"]
+
+# Domain Configuration (optional)
+domain_name   = "regrada.com"    # Set to "" if not using custom domain
+api_subdomain = "api"            # Creates api.regrada.com
+app_subdomain = "app"            # Creates app.regrada.com
+
+# AWS Cognito Configuration (required)
+cognito_user_pool_id   = "us-east-1_xxxxxxxxx"
+cognito_client_id      = "your-cognito-client-id"
+cognito_client_secret  = "your-cognito-client-secret"
+
+# Database Configuration
+postgres_user     = "regrada"
+postgres_password = "change-this-secure-password" # Use a strong password!
+postgres_db       = "regrada"
+
+# Backend Configuration
+backend_port   = 8080
+frontend_port  = 3000
+gin_mode       = "release" # Use "debug" for development
+secure_cookies = true
+
+# AWS Services (optional)
+s3_bucket          = ""                          # S3 bucket for file storage
+cloudfront_domain  = ""                          # CloudFront CDN domain
+email_from_address = "noreply@regrada.com"       # SES sender email
+email_from_name    = "Regrada"
+
+# Additional Tags
+tags = {
+  Owner       = "your-name"
+  CostCenter  = "engineering"
+}
