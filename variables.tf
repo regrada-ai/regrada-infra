@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LicenseRef-Regrada-Proprietary
 # variables.tf - Input variables for Regrada infrastructure
 
 variable "aws_region" {

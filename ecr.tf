@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LicenseRef-Regrada-Proprietary
 # ecr.tf - ECR repositories for Docker images
 
 resource "aws_ecr_repository" "backend" {

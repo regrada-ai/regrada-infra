@@ -316,3 +316,11 @@ For issues or questions:
 - [Terraform AWS Provider Documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
 - [AWS ECS Best Practices](https://docs.aws.amazon.com/AmazonECS/latest/bestpracticesguide/)
 - [AWS Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
+
+## License
+
+This project is proprietary software owned by Regrada, Inc.
+All rights reserved.
+
+No use, reproduction, modification, or distribution is permitted
+without explicit written authorization from Regrada, Inc.

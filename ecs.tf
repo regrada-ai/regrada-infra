@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LicenseRef-Regrada-Proprietary
 # ecs.tf - ECS Cluster and Services
 
 # ============================================================================

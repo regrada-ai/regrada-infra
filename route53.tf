@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LicenseRef-Regrada-Proprietary
 # route53.tf - Route53 DNS Configuration
 # Uses existing hosted zone from data-sources.tf
 
