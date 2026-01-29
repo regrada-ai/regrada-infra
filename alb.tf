@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LicenseRef-Regrada-Proprietary
 # alb.tf - Application Load Balancer
 
 # ============================================================================

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LicenseRef-Regrada-Proprietary
 # data-sources.tf - Data sources for existing AWS resources
 
 # ============================================================================

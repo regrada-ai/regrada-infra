@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LicenseRef-Regrada-Proprietary
 # outputs.tf - Output values from Terraform
 
 # ============================================================================
