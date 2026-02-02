@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LicenseRef-Regrada-Proprietary
 # rds.tf - RDS PostgreSQL Database
 
 # ============================================================================

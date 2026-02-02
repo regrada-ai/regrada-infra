@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LicenseRef-Regrada-Proprietary
 # secrets.tf - AWS Secrets Manager
 
 # ============================================================================

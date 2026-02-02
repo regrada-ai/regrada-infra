@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LicenseRef-Regrada-Proprietary
 # main.tf - Main Terraform configuration for Regrada infrastructure
 
 terraform {

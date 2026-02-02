@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: LicenseRef-Regrada-Proprietary
 # user-data.sh - EC2 initialization script for Regrada
 
 set -e

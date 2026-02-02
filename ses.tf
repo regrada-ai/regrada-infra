@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LicenseRef-Regrada-Proprietary
 # ses.tf - AWS SES Configuration
 # Uses existing verified domain from data-sources.tf (regrada.com)
 
