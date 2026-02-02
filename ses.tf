@@ -29,23 +29,12 @@ resource "aws_ses_domain_mail_from" "regrada" {
   mail_from_domain = "mail.regrada.com"
 }
 
-# MX record for mail FROM domain
-resource "aws_route53_record" "ses_mail_from_mx" {
-  zone_id = data.aws_route53_zone.regrada.zone_id
-  name    = aws_ses_domain_mail_from.regrada.mail_from_domain
-  type    = "MX"
-  ttl     = "600"
-  records = ["10 feedback-smtp.${var.aws_region}.amazonses.com"]
-}
-
-# TXT record for mail FROM domain
-resource "aws_route53_record" "ses_mail_from_txt" {
-  zone_id = data.aws_route53_zone.regrada.zone_id
-  name    = aws_ses_domain_mail_from.regrada.mail_from_domain
-  type    = "TXT"
-  ttl     = "600"
-  records = ["v=spf1 include:amazonses.com ~all"]
-}
+# MX and TXT records for mail FROM domain already exist in Route53
+# Import them if you want Terraform to manage them:
+#   terraform import aws_route53_record.ses_mail_from_mx Z020639034BK26JZFNW6N_mail.regrada.com_MX
+#   terraform import aws_route53_record.ses_mail_from_txt Z020639034BK26JZFNW6N_mail.regrada.com_TXT
+#
+# For now, these are managed outside Terraform since they already exist
 
 # ============================================================================
 # SES Configuration Set

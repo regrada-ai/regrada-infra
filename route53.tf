@@ -87,18 +87,20 @@ resource "aws_s3_bucket_policy" "redirect" {
       }
     ]
   })
+
+  depends_on = [aws_s3_bucket_public_access_block.redirect]
 }
 
-# Apex domain A record pointing to S3 redirect
+# Apex domain A record pointing to ALB (redirect handled by ALB rule)
 resource "aws_route53_record" "apex" {
   zone_id = data.aws_route53_zone.regrada.zone_id
   name    = "regrada.com"
   type    = "A"
 
   alias {
-    name                   = aws_s3_bucket_website_configuration.redirect.website_domain
-    zone_id                = aws_s3_bucket.redirect.hosted_zone_id
-    evaluate_target_health = false
+    name                   = aws_lb.main.dns_name
+    zone_id                = aws_lb.main.zone_id
+    evaluate_target_health = true
   }
 }
 
@@ -180,6 +182,31 @@ resource "aws_lb_listener_rule" "backend_health_https" {
   condition {
     path_pattern {
       values = ["/health"]
+    }
+  }
+
+  tags = local.common_tags
+}
+
+# Redirect apex domain (regrada.com) to www.regrada.com
+resource "aws_lb_listener_rule" "redirect_apex_to_www" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 50
+
+  action {
+    type = "redirect"
+
+    redirect {
+      host        = "www.regrada.com"
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+
+  condition {
+    host_header {
+      values = ["regrada.com"]
     }
   }
 

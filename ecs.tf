@@ -204,8 +204,12 @@ resource "aws_ecs_task_definition" "backend" {
           value = tostring(var.secure_cookies)
         },
         {
+          name  = "COOKIE_DOMAIN"
+          value = var.cookie_domain
+        },
+        {
           name  = "DATABASE_URL"
-          value = "postgres://${var.postgres_user}:${random_password.rds_password.result}@${aws_db_instance.postgres.endpoint}/${var.postgres_db}?sslmode=require"
+          value = "postgres://${var.postgres_user}:${urlencode(random_password.rds_password.result)}@${aws_db_instance.postgres.endpoint}/${var.postgres_db}?sslmode=require"
         },
         {
           name  = "REDIS_URL"
@@ -229,7 +233,7 @@ resource "aws_ecs_task_definition" "backend" {
         },
         {
           name  = "CORS_ALLOW_ORIGINS"
-          value = "*"
+          value = "https://www.regrada.com"
         },
         {
           name  = "S3_BUCKET"

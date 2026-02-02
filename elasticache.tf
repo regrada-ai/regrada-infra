@@ -85,14 +85,9 @@ resource "aws_elasticache_cluster" "redis" {
   # Auto minor version upgrade
   auto_minor_version_upgrade = true
 
-  # At-rest encryption
-  at_rest_encryption_enabled = false # Enable for production
-
-  # In-transit encryption
-  transit_encryption_enabled = false # Enable for production with AUTH token
-
-  # Multi-AZ
-  # az_mode = "single-az" # Use "cross-az" for multi-AZ with replica
+  # Note: Encryption at rest and in transit require Redis AUTH and are only
+  # available with replication groups (not single-node clusters)
+  # For production with encryption, use aws_elasticache_replication_group instead
 
   tags = merge(local.common_tags, {
     Name = "${var.project_name}-${var.environment}-redis"

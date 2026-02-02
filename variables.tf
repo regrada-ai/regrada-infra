@@ -24,56 +24,7 @@ variable "instance_type" {
   default     = "t3.small"
 }
 
-# Cognito Configuration
-variable "create_new_cognito" {
-  description = "Whether to create a new Cognito User Pool or use existing"
-  type        = bool
-  default     = false
-}
-
-variable "existing_cognito_user_pool_name" {
-  description = "Name of existing Cognito User Pool (if not creating new)"
-  type        = string
-  default     = ""
-}
-
-variable "cognito_callback_urls" {
-  description = "List of allowed callback URLs for Cognito"
-  type        = list(string)
-  default     = ["http://localhost:3000/auth/callback"]
-}
-
-variable "cognito_logout_urls" {
-  description = "List of allowed logout URLs for Cognito"
-  type        = list(string)
-  default     = ["http://localhost:3000"]
-}
-
-# Domain configuration (optional)
-variable "domain_name" {
-  description = "Domain name for the application (e.g., regrada.com)"
-  type        = string
-  default     = ""
-}
-
-variable "api_subdomain" {
-  description = "Subdomain for API (e.g., api.regrada.com)"
-  type        = string
-  default     = "api"
-}
-
-variable "app_subdomain" {
-  description = "Subdomain for app (e.g., app.regrada.com)"
-  type        = string
-  default     = "app"
-}
-
-# Backend environment variables
-variable "cognito_user_pool_id" {
-  description = "AWS Cognito User Pool ID"
-  type        = string
-}
-
+# Cognito Configuration (using existing resources via data sources)
 variable "cognito_client_id" {
   description = "AWS Cognito Client ID"
   type        = string
@@ -171,6 +122,12 @@ variable "secure_cookies" {
   description = "Enable secure cookies for production"
   type        = bool
   default     = true
+}
+
+variable "cookie_domain" {
+  description = "Cookie domain for cross-subdomain auth (e.g., .regrada.com)"
+  type        = string
+  default     = ""
 }
 
 # Tags
