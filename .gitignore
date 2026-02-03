@@ -23,8 +23,5 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-# Lock file (commit this in real projects)
-.terraform.lock.hcl
-
 # Ignore Mac/OSX
 .DS_Store

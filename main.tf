@@ -10,6 +10,14 @@ terraform {
       version = "~> 5.0"
     }
   }
+
+  backend "s3" {
+    bucket         = "regrada-terraform-state"
+    key            = "production/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "regrada-terraform-locks"
+    encrypt        = true
+  }
 }
 
 provider "aws" {
