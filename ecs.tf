@@ -251,6 +251,10 @@ resource "aws_ecs_task_definition" "backend" {
         {
           name  = "EMAIL_FROM_NAME"
           value = var.email_from_name
+        },
+        {
+          name  = "FRONTEND_URL"
+          value = "https://www.regrada.com"
         }
       ]
 
@@ -309,6 +313,18 @@ resource "aws_ecs_task_definition" "frontend" {
         {
           name  = "PORT"
           value = tostring(var.frontend_port)
+        },
+        {
+          name  = "NEXT_PUBLIC_COGNITO_DOMAIN"
+          value = var.cognito_domain
+        },
+        {
+          name  = "NEXT_PUBLIC_COGNITO_CLIENT_ID"
+          value = var.cognito_client_id
+        },
+        {
+          name  = "NEXT_PUBLIC_APP_URL"
+          value = "https://www.regrada.com"
         }
       ]
 

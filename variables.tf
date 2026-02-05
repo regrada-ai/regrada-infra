@@ -37,6 +37,11 @@ variable "cognito_client_secret" {
   sensitive   = true
 }
 
+variable "cognito_domain" {
+  description = "AWS Cognito domain (e.g., your-domain.auth.us-east-1.amazoncognito.com)"
+  type        = string
+}
+
 variable "s3_bucket" {
   description = "S3 bucket for file storage (optional)"
   type        = string
