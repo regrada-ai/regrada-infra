@@ -39,7 +39,7 @@ resource "aws_secretsmanager_secret" "cognito_client_secret" {
 }
 
 resource "aws_secretsmanager_secret_version" "cognito_client_secret" {
-  secret_id     = aws_secretsmanager_secret.cognito_client_secret.id
+  secret_id = aws_secretsmanager_secret.cognito_client_secret.id
   secret_string = jsonencode({
     user_pool_id  = data.aws_cognito_user_pool.main.id
     client_id     = var.cognito_client_id

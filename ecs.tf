@@ -233,6 +233,10 @@ resource "aws_ecs_task_definition" "backend" {
           value = var.cognito_client_secret
         },
         {
+          name  = "COGNITO_DOMAIN",
+          value = var.cognito_domain
+        },
+        {
           name  = "CORS_ALLOW_ORIGINS"
           value = "https://www.regrada.com"
         },
@@ -325,6 +329,10 @@ resource "aws_ecs_task_definition" "frontend" {
         {
           name  = "NEXT_PUBLIC_APP_URL"
           value = "https://www.regrada.com"
+        },
+        {
+          name  = "HOSTNAME"
+          value = "0.0.0.0"
         }
       ]
 
@@ -334,6 +342,14 @@ resource "aws_ecs_task_definition" "frontend" {
           protocol      = "tcp"
         }
       ]
+
+      healthCheck = {
+        command     = ["CMD-SHELL", "curl -f http://localhost:${var.frontend_port}/api/health || exit 1"]
+        interval    = 30
+        timeout     = 5
+        retries     = 3
+        startPeriod = 60
+      }
 
       logConfiguration = {
         logDriver = "awslogs"
