@@ -42,6 +42,19 @@ resource "aws_security_group" "elasticache" {
   })
 }
 
+# Allow bastion to access Redis
+resource "aws_security_group_rule" "elasticache_from_bastion" {
+  count = var.bastion_enabled ? 1 : 0
+
+  type                     = "ingress"
+  from_port                = 6379
+  to_port                  = 6379
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.bastion.id
+  security_group_id        = aws_security_group.elasticache.id
+  description              = "Redis from bastion"
+}
+
 # ============================================================================
 # ElastiCache Parameter Group
 # ============================================================================

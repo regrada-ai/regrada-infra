@@ -110,3 +110,17 @@ output "acm_certificate_arn" {
   description = "ACM certificate ARN"
   value       = aws_acm_certificate.main.arn
 }
+
+# ============================================================================
+# Bastion Outputs
+# ============================================================================
+
+output "bastion_public_ip" {
+  description = "Static public IP address of the bastion host (Elastic IP)"
+  value       = var.bastion_enabled ? aws_eip.bastion[0].public_ip : null
+}
+
+output "bastion_ssh_command" {
+  description = "SSH command to connect to the bastion host"
+  value       = var.bastion_enabled ? "ssh -i <your-key.pem> ec2-user@${aws_eip.bastion[0].public_ip}" : null
+}

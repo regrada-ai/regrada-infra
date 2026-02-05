@@ -44,6 +44,19 @@ resource "aws_security_group" "rds" {
   })
 }
 
+# Allow bastion to access RDS
+resource "aws_security_group_rule" "rds_from_bastion" {
+  count = var.bastion_enabled ? 1 : 0
+
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.bastion.id
+  security_group_id        = aws_security_group.rds.id
+  description              = "PostgreSQL from bastion"
+}
+
 # ============================================================================
 # RDS PostgreSQL Instance
 # ============================================================================
@@ -86,7 +99,7 @@ resource "aws_db_instance" "postgres" {
   monitoring_role_arn             = aws_iam_role.rds_monitoring.arn
 
   # Performance Insights
-  performance_insights_enabled    = false # Enable for production
+  performance_insights_enabled          = false # Enable for production
   performance_insights_retention_period = 0
 
   # High Availability

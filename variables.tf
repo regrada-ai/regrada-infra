@@ -137,3 +137,16 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+# Bastion Configuration
+variable "bastion_enabled" {
+  description = "Enable bastion host for SSH access to private resources"
+  type        = bool
+  default     = false
+}
+
+variable "bastion_public_key" {
+  description = "SSH public key for bastion host"
+  type        = string
+  default     = ""
+}
