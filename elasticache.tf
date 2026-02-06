@@ -72,15 +72,16 @@ resource "aws_elasticache_parameter_group" "redis" {
 }
 
 # ============================================================================
-# ElastiCache Redis Cluster
+# ElastiCache Redis Replication Group (with AUTH and encryption)
 # ============================================================================
 
-resource "aws_elasticache_cluster" "redis" {
-  cluster_id           = "${var.project_name}-${var.environment}-redis"
+resource "aws_elasticache_replication_group" "redis" {
+  replication_group_id = "${var.project_name}-${var.environment}-redis"
+  description          = "Redis replication group for ${var.project_name}"
   engine               = "redis"
   engine_version       = "7.1"
   node_type            = var.redis_node_type
-  num_cache_nodes      = 1
+  num_cache_clusters   = 1
   parameter_group_name = aws_elasticache_parameter_group.redis.name
   subnet_group_name    = aws_elasticache_subnet_group.redis.name
   security_group_ids   = [aws_security_group.elasticache.id]
@@ -88,20 +89,18 @@ resource "aws_elasticache_cluster" "redis" {
   # Port
   port = 6379
 
+  # Authentication
+  auth_token                 = random_password.redis_auth_token.result
+  transit_encryption_enabled = true
+  at_rest_encryption_enabled = true
+
   # Snapshots and backups
   snapshot_retention_limit = 1
   snapshot_window          = "03:00-05:00"
   maintenance_window       = "mon:05:00-mon:07:00"
 
-  # Notifications (optional)
-  # notification_topic_arn = aws_sns_topic.elasticache_notifications.arn
-
   # Auto minor version upgrade
   auto_minor_version_upgrade = true
-
-  # Note: Encryption at rest and in transit require Redis AUTH and are only
-  # available with replication groups (not single-node clusters)
-  # For production with encryption, use aws_elasticache_replication_group instead
 
   tags = merge(local.common_tags, {
     Name = "${var.project_name}-${var.environment}-redis"
@@ -124,7 +123,7 @@ resource "aws_cloudwatch_metric_alarm" "redis_cpu" {
   alarm_description   = "This metric monitors redis cpu utilization"
 
   dimensions = {
-    CacheClusterId = aws_elasticache_cluster.redis.id
+    CacheClusterId = "${aws_elasticache_replication_group.redis.id}-001"
   }
 
   tags = local.common_tags
@@ -142,7 +141,7 @@ resource "aws_cloudwatch_metric_alarm" "redis_memory" {
   alarm_description   = "This metric monitors redis memory utilization"
 
   dimensions = {
-    CacheClusterId = aws_elasticache_cluster.redis.id
+    CacheClusterId = "${aws_elasticache_replication_group.redis.id}-001"
   }
 
   tags = local.common_tags

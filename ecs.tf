@@ -121,9 +121,22 @@ resource "aws_iam_role_policy" "ecs_task_cognito" {
       {
         Effect = "Allow"
         Action = [
-          "cognito-idp:*"
+          "cognito-idp:AdminGetUser",
+          "cognito-idp:AdminCreateUser",
+          "cognito-idp:AdminSetUserPassword",
+          "cognito-idp:AdminInitiateAuth",
+          "cognito-idp:AdminRespondToAuthChallenge",
+          "cognito-idp:AdminUserGlobalSignOut",
+          "cognito-idp:InitiateAuth",
+          "cognito-idp:SignUp",
+          "cognito-idp:ConfirmSignUp",
+          "cognito-idp:ForgotPassword",
+          "cognito-idp:ConfirmForgotPassword",
+          "cognito-idp:GlobalSignOut",
+          "cognito-idp:GetUser",
+          "cognito-idp:RevokeToken"
         ]
-        Resource = "*"
+        Resource = data.aws_cognito_user_pool.main.arn
       }
     ]
   })
@@ -164,7 +177,7 @@ resource "aws_iam_role_policy" "ecs_task_ses" {
           "ses:SendEmail",
           "ses:SendRawEmail"
         ]
-        Resource = "*"
+        Resource = "arn:aws:ses:${var.aws_region}:${data.aws_caller_identity.current.account_id}:identity/${split("@", var.email_from_address)[1]}"
       }
     ]
   })
@@ -208,14 +221,8 @@ resource "aws_ecs_task_definition" "backend" {
           name  = "COOKIE_DOMAIN"
           value = var.cookie_domain
         },
-        {
-          name  = "DATABASE_URL"
-          value = "postgres://${var.postgres_user}:${urlencode(random_password.rds_password.result)}@${aws_db_instance.postgres.endpoint}/${var.postgres_db}?sslmode=require"
-        },
-        {
-          name  = "REDIS_URL"
-          value = "redis://${aws_elasticache_cluster.redis.cache_nodes[0].address}:${aws_elasticache_cluster.redis.cache_nodes[0].port}"
-        },
+        # DATABASE_URL moved to secrets block below
+        # REDIS_URL moved to secrets block below
         {
           name  = "AWS_REGION"
           value = var.aws_region
@@ -228,10 +235,7 @@ resource "aws_ecs_task_definition" "backend" {
           name  = "COGNITO_CLIENT_ID"
           value = var.cognito_client_id
         },
-        {
-          name  = "COGNITO_CLIENT_SECRET"
-          value = var.cognito_client_secret
-        },
+        # COGNITO_CLIENT_SECRET moved to secrets block below
         {
           name  = "COGNITO_DOMAIN",
           value = var.cognito_domain
@@ -259,6 +263,21 @@ resource "aws_ecs_task_definition" "backend" {
         {
           name  = "FRONTEND_URL"
           value = "https://www.regrada.com"
+        }
+      ]
+
+      secrets = [
+        {
+          name      = "DATABASE_URL"
+          valueFrom = aws_secretsmanager_secret.database_url.arn
+        },
+        {
+          name      = "COGNITO_CLIENT_SECRET"
+          valueFrom = "${aws_secretsmanager_secret.cognito_client_secret.arn}:client_secret::"
+        },
+        {
+          name      = "REDIS_URL"
+          valueFrom = aws_secretsmanager_secret.redis_url.arn
         }
       ]
 
@@ -430,7 +449,7 @@ resource "aws_ecs_service" "backend" {
 
   depends_on = [
     aws_lb_listener.http,
-    aws_elasticache_cluster.redis,
+    aws_elasticache_replication_group.redis,
     aws_db_instance.postgres
   ]
 
@@ -459,7 +478,7 @@ resource "aws_ecs_service" "frontend" {
   depends_on = [
     aws_lb_listener.http,
     aws_ecs_service.backend,
-    aws_elasticache_cluster.redis,
+    aws_elasticache_replication_group.redis,
     aws_db_instance.postgres
   ]
 

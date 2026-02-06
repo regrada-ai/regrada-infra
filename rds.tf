@@ -106,9 +106,9 @@ resource "aws_db_instance" "postgres" {
   multi_az = false # Set to true for production
 
   # Protection
-  deletion_protection = false # Set to true for production
-  skip_final_snapshot = true  # Set to false for production
-  # final_snapshot_identifier = "${var.project_name}-${var.environment}-postgres-final-snapshot"
+  deletion_protection       = true
+  skip_final_snapshot       = false
+  final_snapshot_identifier = "${var.project_name}-${var.environment}-postgres-final-snapshot"
 
   # Auto minor version upgrade
   auto_minor_version_upgrade = true

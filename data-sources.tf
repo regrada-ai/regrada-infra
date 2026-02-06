@@ -13,9 +13,8 @@ data "aws_cognito_user_pool" "main" {
   user_pool_id = "us-east-1_yjgQiprWD"
 }
 
-# Note: Client secret must be passed as variable since it cannot be retrieved from data source
-# Cognito Client ID: 3676h3h2n7qv227s40mufjdipv
-# Cognito Client Secret: nsjbnecnobpccde321skm9tqbfmiu6rra831pivrsh9t1tlev1p
+# Note: Client credentials must be passed as variables since they cannot be retrieved from data source
+# See terraform.tfvars.example for required variables: cognito_client_id, cognito_client_secret
 
 # ============================================================================
 # Existing Route53 Hosted Zone
