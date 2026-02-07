@@ -124,3 +124,17 @@ output "bastion_ssh_command" {
   description = "SSH command to connect to the bastion host"
   value       = var.bastion_enabled ? "ssh -i <your-key.pem> ec2-user@${aws_eip.bastion[0].public_ip}" : null
 }
+
+# ============================================================================
+# NAT Instance Outputs
+# ============================================================================
+
+output "nat_instance_private_ip" {
+  description = "Private IP of the NAT instance (for SSH from bastion)"
+  value       = aws_instance.nat.private_ip
+}
+
+output "nat_ssh_command_from_bastion" {
+  description = "SSH command to connect to NAT instance from bastion"
+  value       = "ssh ec2-user@${aws_instance.nat.private_ip}"
+}

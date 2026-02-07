@@ -154,6 +154,14 @@ resource "aws_security_group" "nat" {
     description = "All traffic from VPC"
   }
 
+  ingress {
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [aws_security_group.bastion.id]
+    description     = "SSH from bastion"
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -174,6 +182,7 @@ resource "aws_instance" "nat" {
   source_dest_check           = false
   associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.nat.id]
+  key_name                    = var.bastion_enabled && var.bastion_public_key != "" ? aws_key_pair.bastion[0].key_name : null
 
   user_data = <<-USERDATA
     #!/bin/bash
@@ -182,15 +191,25 @@ resource "aws_instance" "nat" {
     echo "net.ipv4.ip_forward = 1" > /etc/sysctl.d/nat.conf
     sysctl -p /etc/sysctl.d/nat.conf
 
+    # Disable Docker if present (not needed on NAT instance, interferes with iptables)
+    systemctl disable docker --now 2>/dev/null || true
+    systemctl disable ecs --now 2>/dev/null || true
+
     # Configure iptables for NAT
     yum install -y iptables-services
     systemctl enable iptables
     systemctl start iptables
+
+    # Flush default FORWARD rules (AL2023 ships with a REJECT-all rule)
+    iptables -F FORWARD
+    iptables -F -t nat
+
     IFACE=$(ip -o route get 1.0.0.0 | awk '{print $5}')
     iptables -t nat -A POSTROUTING -o "$IFACE" -s 10.0.0.0/16 -j MASQUERADE
     iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
     iptables -A FORWARD -s 10.0.0.0/16 -j ACCEPT
-    service iptables save
+    iptables -A FORWARD -j REJECT --reject-with icmp-host-prohibited
+    iptables-save > /etc/sysconfig/iptables
   USERDATA
 
   metadata_options {
@@ -201,7 +220,7 @@ resource "aws_instance" "nat" {
 
   root_block_device {
     volume_type           = "gp3"
-    volume_size           = 8
+    volume_size           = 30
     encrypted             = true
     delete_on_termination = true
   }
