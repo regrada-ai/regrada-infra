@@ -62,7 +62,7 @@ resource "aws_vpc_endpoint" "interface" {
   service_name        = each.value
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private.id, aws_subnet.private_2.id]
+  subnet_ids          = [aws_subnet.private.id]
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
 
   tags = merge(local.common_tags, {

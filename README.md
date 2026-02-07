@@ -200,12 +200,12 @@ aws secretsmanager get-secret-value --secret-id regrada-production-rds-password 
 | RDS (PostgreSQL) | db.t4g.micro | ~$15 |
 | ElastiCache (Redis) | cache.t4g.micro | ~$12 |
 | ALB | Active | ~$16 |
-| VPC Endpoints (5 Interface) | ECR, Logs, Secrets, STS | ~$73 |
+| VPC Endpoints (5 Interface) | ECR, Logs, Secrets, STS | ~$37 |
 | Route53 | Hosted zone + queries | ~$1 |
 | ACM Certificate | Free | $0 |
 | ECR | <500 GB | ~$0-5 |
 | CloudWatch Logs | Moderate usage | ~$3-5 |
-| **Total** | | **~$140-147/month** |
+| **Total** | | **~$104-111/month** |
 
 ## Scaling
 
