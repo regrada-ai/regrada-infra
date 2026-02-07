@@ -122,24 +122,93 @@ resource "aws_route_table_association" "public_2" {
   route_table_id = aws_route_table.public.id
 }
 
-# NAT Gateway for private subnet
-resource "aws_eip" "nat" {
-  domain = "vpc"
+# ============================================================================
+# NAT Instance (t4g.micro - replaces NAT Gateway and VPC endpoints)
+# ============================================================================
+
+data "aws_ami" "amazon_linux_2023_arm64" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-*-arm64"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+resource "aws_security_group" "nat" {
+  name_prefix = "${var.project_name}-${var.environment}-nat-"
+  description = "Security group for NAT instance"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [aws_vpc.main.cidr_block]
+    description = "All traffic from VPC"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "All outbound"
+  }
 
   tags = merge(local.common_tags, {
-    Name = "${var.project_name}-${var.environment}-nat-eip"
+    Name = "${var.project_name}-${var.environment}-nat-sg"
   })
 }
 
-resource "aws_nat_gateway" "main" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public.id
+resource "aws_instance" "nat" {
+  ami                         = data.aws_ami.amazon_linux_2023_arm64.id
+  instance_type               = "t4g.micro"
+  subnet_id                   = aws_subnet.public.id
+  source_dest_check           = false
+  associate_public_ip_address = true
+  vpc_security_group_ids      = [aws_security_group.nat.id]
+
+  user_data = <<-USERDATA
+    #!/bin/bash
+    set -e
+    # Enable IP forwarding
+    echo "net.ipv4.ip_forward = 1" > /etc/sysctl.d/nat.conf
+    sysctl -p /etc/sysctl.d/nat.conf
+
+    # Configure iptables for NAT
+    yum install -y iptables-services
+    systemctl enable iptables
+    systemctl start iptables
+    IFACE=$(ip -o route get 1.0.0.0 | awk '{print $5}')
+    iptables -t nat -A POSTROUTING -o "$IFACE" -s 10.0.0.0/16 -j MASQUERADE
+    iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+    iptables -A FORWARD -s 10.0.0.0/16 -j ACCEPT
+    service iptables save
+  USERDATA
+
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+  }
+
+  root_block_device {
+    volume_type           = "gp3"
+    volume_size           = 8
+    encrypted             = true
+    delete_on_termination = true
+  }
 
   tags = merge(local.common_tags, {
-    Name = "${var.project_name}-${var.environment}-nat-gw"
+    Name = "${var.project_name}-${var.environment}-nat-instance"
   })
-
-  depends_on = [aws_internet_gateway.main]
 }
 
 # Private route table
@@ -147,8 +216,8 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
   route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.main.id
+    cidr_block           = "0.0.0.0/0"
+    network_interface_id = aws_instance.nat.primary_network_interface_id
   }
 
   tags = merge(local.common_tags, {

@@ -178,7 +178,7 @@ Alarms are configured for:
 
 - **Secrets Manager**: Stores RDS password and Cognito credentials
 - **Private Subnets**: ECS tasks, RDS, and ElastiCache in private subnets
-- **NAT Gateway**: Outbound internet access for private resources
+- **NAT Instance**: Outbound internet access for private resources via t4g.micro EC2
 - **Security Groups**: Least-privilege network access
 - **HTTPS Only**: ACM certificate with TLS 1.3
 - **IAM Roles**: Task-specific permissions for ECS
@@ -200,12 +200,12 @@ aws secretsmanager get-secret-value --secret-id regrada-production-rds-password 
 | RDS (PostgreSQL) | db.t4g.micro | ~$15 |
 | ElastiCache (Redis) | cache.t4g.micro | ~$12 |
 | ALB | Active | ~$16 |
-| NAT Gateway | Single AZ | ~$32 |
+| NAT Instance | t4g.micro | ~$6 |
 | Route53 | Hosted zone + queries | ~$1 |
 | ACM Certificate | Free | $0 |
 | ECR | <500 GB | ~$0-5 |
 | CloudWatch Logs | Moderate usage | ~$3-5 |
-| **Total** | | **~$99-106/month** |
+| **Total** | | **~$73-80/month** |
 
 ## Scaling
 
